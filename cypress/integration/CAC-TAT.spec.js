@@ -20,12 +20,17 @@ describe('Central de Atendimento ao Cliente TAT', function() {
  
         const   longText = 'Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste,Teste';
       
+        cy.clock();
+
         cy.get('#firstName').type('Emanuel');
         cy.get('#lastName').type('do Nascimento Júnior');
         cy.get('#email').type('emanuel.junior@ativasolucoes.com.br');
         cy.get('#open-text-area').type(longText,{delay: 0 });
         cy.get('button[type="submit"]').click();
         cy.get('.success').should('be.visible');
+        cy.tick(3000);
+        cy.get('.success').should('not.be.visible');
+        
     })
 
 
@@ -214,11 +219,69 @@ it('Teste - acessa a página da política de privacidade removendo o target e en
 
 
 
+// Teste - exibe e esconde as mensagens de sucesso e erro usando o .invoke()
+
+it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+  cy.get('.success')
+    .should('not.be.visible')
+    .invoke('show')
+    .should('be.visible')
+    .and('contain', 'Mensagem enviada com sucesso.')
+    .invoke('hide')
+    .should('not.be.visible')
+  cy.get('.error')
+    .should('not.be.visible')
+    .invoke('show')
+    .should('be.visible')
+    .and('contain', 'Valide os campos obrigatórios!')
+    .invoke('hide')
+    .should('not.be.visible')
+})
 
 
+// Teste - preenche a area de texto usando o comando invoke
+
+it('preenche a area de texto usando o comando invoke', function(){
+
+const longText = Cypress._.repeat('0123456789',200);
+
+cy.get('#open-text-area').invoke('val',longText).should('have.value', longText);
+
+})
 
 
+//Teste - faz uma requisição HTTP
 
+it('faz uma requisição HTTP', function(){
+
+
+cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html').should(function(response){
+
+console.log(response);
+
+const {status, statusText, body} = response
+
+expect (status).to.equal(200);
+expect(statusText).to.equal('OK');
+expect(body).to.include('CAC TAT');
+
+})  
+
+
+})
+
+
+// Teste - encontra o gato escondido
+
+it.only('encontra o gato escondido',function(){
+
+cy.get('#cat').invoke('show').should('be.visible');
+
+cy.get('#title').invoke('text','CAT TAT')
+
+cy.get('#subtitle').invoke('text','220V - Vai Corinthians 🚀' )
+
+})
 
 
 
